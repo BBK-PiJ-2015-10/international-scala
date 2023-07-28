@@ -28,12 +28,12 @@ case class WatchServiceImpl(watchRepo: WatchRepo) extends WatchService {
   override def saveWatch(watch: Watch): Watch = {
     val remoteList = fetchWatchList()
     if (remoteList.isEmpty) {
+      watchRepo.save(List(watch))
+    } else {
       val partitionedList: (List[Watch], List[Watch]) = remoteList.partition(remote => remote.preference < watch.preference)
       val updatedRemotes = partitionedList._2.map(remoteHigher => remoteHigher.copy(preference = remoteHigher.preference + 1))
       val updatedList = partitionedList._1 ++ List(watch) ++ updatedRemotes
       watchRepo.save(updatedList)
-    } else {
-      watchRepo.save(List(watch))
     }
     watch
   }

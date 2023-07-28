@@ -7,13 +7,13 @@ trait WatchRepo {
 
   def findAll() : List[Watch]
 
-  def save(watchList: List[Watch]) : List[Watch]
+  def save(watchList: List[Watch]): List[Watch]
 
 }
 
-object WatchListRepo extends WatchRepo {
+case class WatchRepoImpl() extends WatchRepo {
 
-  var storedWatchList : List[Watch] = List()
+  private var storedWatchList : List[Watch] = List()
 
   override def findAll(): List[Watch] = storedWatchList
 
