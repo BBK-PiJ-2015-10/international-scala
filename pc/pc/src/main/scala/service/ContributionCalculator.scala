@@ -10,16 +10,30 @@ trait ContributionCalculator {
 case class ContributionCalculatorImpl() extends ContributionCalculator {
   override def calculateContribution(salary: Double, desiredContributionPercentage: Double, maxContributionAmount: Double, matchingBands: Map[Double, Double]):Double = {
     var totalAmountContribution : Double = 0.00
-    var totalPercentageContribution : Double = 0.0
+    var totalLeftContributionPercentage : Double = desiredContributionPercentage
+    var totalLeftContributionAmount : Double = maxContributionAmount
     val sortedBands = matchingBands.keySet.toList.sorted
     for (band <- sortedBands){
-      if (totalAmountContribution < maxContributionAmount && totalPercentageContribution < desiredContributionPercentage){
+      if (totalLeftContributionAmount > 0 && totalLeftContributionPercentage > 0){
         // simple case
         val matchingPercentage = matchingBands.get(band)
-        val matchingAmount = salary * band * matchingPercentage
-        totalAmountContribution += matchingAmount
-        totalPercentageContribution += band
-        // case where you exceed the band
+        if (totalLeftContributionPercentage - band < 0) {
+          // confirm amount is not exceeded
+          val matchingAmount : Double = salary * totalLeftContributionPercentage * matchingPercentage.get
+          if ((matchingAmount + totalAmountContribution) < 0) {
+
+          } else {
+            totalAmountContribution += matchingAmount
+            totalLeftContributionPercentage = 0
+          }
+        } else {
+          // confirm amount is not exceeded
+          val matchingAmount = salary * band * matchingPercentage
+
+          totalAmountContribution += matchingAmount
+          totalLeftContributionPercentage -= band
+
+        }
       }
     }
     totalAmountContribution
