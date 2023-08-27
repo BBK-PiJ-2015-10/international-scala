@@ -3,17 +3,17 @@ package service
 
 trait ContributionCalculator {
 
-  def calculateContribution(salary: Double, desiredContributionPercentage: Double, maxContributionAmount: Double, matchingBands: Map[Double, Double]): Double
+  def calculateContribution(salary: Double, desiredContributionPercentage: Double, contributionCapAmount: Double, matchingBands: Map[Double, Double]): Double
 
 }
 
 case class ContributionCalculatorImpl() extends ContributionCalculator {
-  override def calculateContribution(salary: Double, desiredContributionPercentage: Double, maxContributionAmountRule: Double, matchingBands: Map[Double, Double]): Double = {
+  override def calculateContribution(salary: Double, desiredContributionPercentage: Double, contributionCapAmount: Double, matchingBands: Map[Double, Double]): Double = {
     var maxContributionAmount: Double = 0.00
-    if (salary * desiredContributionPercentage <= maxContributionAmountRule) {
+    if (salary * desiredContributionPercentage <= contributionCapAmount) {
       maxContributionAmount = salary * desiredContributionPercentage
     } else {
-      maxContributionAmount = maxContributionAmountRule
+      maxContributionAmount = contributionCapAmount
     }
     calculateTotalContribution(salary, 0.0, 0.0, maxContributionAmount, 0.0, matchingBands.keySet.toList.sorted, matchingBands)
   }
