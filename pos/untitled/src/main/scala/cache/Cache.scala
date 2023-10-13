@@ -5,47 +5,72 @@ import scala.collection.mutable
 
 trait Cache {
 
-  def get(key: Integer) : Integer
+  def get(key: Int): Int
 
-  def put(key: Integer, value: Integer): Unit
+  def put(key: Int, value: Int): Unit
 
 }
 
 class LRUCache(capacity: Integer) extends Cache {
 
-  class Key(val key: Integer, val order: Integer){
+  case class Pair(val value: Int, val position: Int)
 
-    //def canEqual(a: Any) = a.isInstanceOf[Key]
+  // key is the position
+  // value is the key from values Table
+  val positionKeyMap = scala.collection.mutable.Map[Int, Int]()
 
-    override def hashCode(): Int = key.hashCode()
+  // key is the key, value is the Pair
+  val keyValuesMap = scala.collection.mutable.Map[Int, Pair]()
 
-    override def equals(obj: Any): Boolean = {
-      obj match {
-        case that: Key => {
-          that.key equals key
-        }
-        case _ => false
+  var oldestPosition: Int = 0
+  var newestPosition: Int = 0
+
+  override def get(key: Int): Int = {
+    newestPosition += 1
+    val value = keyValuesMap.get(key)
+    if (value.isEmpty) {
+      -1
+    } else {
+      val existingPair = value.get
+      val newPair = Pair(existingPair.value, newestPosition)
+      val existingPosition = existingPair.position
+      positionKeyMap.remove(existingPosition)
+      positionKeyMap.put(newestPosition, key)
+      keyValuesMap.update(key, newPair)
+      if (oldestPosition == existingPosition) {
+        oldestPosition += 1
+      }
+      existingPair.value
+    }
+  }
+
+  override def put(key: Int, value: Int): Unit = {
+    newestPosition += 1
+    val newPair = Pair(value, newestPosition)
+    val mapValue = keyValuesMap.get(key)
+    if (mapValue.isEmpty) {
+      if (keyValuesMap.size == capacity) {
+        // need to evict
+        val oldestKey = positionKeyMap.remove(oldestPosition).get
+        keyValuesMap.remove(oldestKey)
+        positionKeyMap.put(newestPosition, key)
+        keyValuesMap.put(key, newPair)
+      } else {
+        // just add
+        positionKeyMap.put(newestPosition, key)
+        keyValuesMap.put(key, newPair)
+      }
+    } else {
+      // just update
+      val existingPair = mapValue.get
+      val existingPosition = existingPair.position
+      positionKeyMap.remove(existingPosition)
+      positionKeyMap.put(newestPosition, key)
+      keyValuesMap.update(key, newPair)
+      if (oldestPosition == existingPosition) {
+        oldestPosition += 1
       }
     }
   }
-
-  implicit val order: Ordering[Key] = Ordering.by((i: Key) => i.order)
-
-  val cache = mutable.TreeMap[Integer,Integer]()
-
-  var leastRecentlyUsedKey : Option[Int] = None
-
-  override def get(key: Integer): Integer = cache.getOrElse(key,-1)
-
-  override def put(key: Integer, value: Integer): Unit = {
-    if (cache.isEmpty) {
-      cache.put(key,value)
-      leastRecentlyUsedKey =
-    } else {
-
-    }
-
-  }
-
 
 }
