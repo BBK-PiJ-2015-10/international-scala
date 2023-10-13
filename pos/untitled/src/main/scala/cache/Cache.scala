@@ -51,10 +51,18 @@ class LRUCache(capacity: Integer) extends Cache {
     if (mapValue.isEmpty) {
       if (keyValuesMap.size == capacity) {
         // need to evict
-        val oldestKey = positionKeyMap.remove(oldestPosition).get
-        keyValuesMap.remove(oldestKey)
-        positionKeyMap.put(newestPosition, key)
-        keyValuesMap.put(key, newPair)
+        var continue = true
+        while (continue) {
+          val oldestKey = positionKeyMap.remove(oldestPosition)
+          if (oldestKey.isEmpty){
+            oldestPosition += 1
+          } else {
+            keyValuesMap.remove(oldestKey.get)
+            positionKeyMap.put(newestPosition, key)
+            keyValuesMap.put(key, newPair)
+            continue = false
+          }
+        }
       } else {
         // just add
         positionKeyMap.put(newestPosition, key)
