@@ -4,6 +4,6 @@ ThisBuild / scalaVersion := "2.13.11"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "untitled",
+    name := "pos",
     idePackagePrefix := Some("com.pos")
   )
