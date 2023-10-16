@@ -8,7 +8,7 @@ trait SearchItem {
       and how many times the word exist in the dictionary
    */
   def findMatch(regex: String, dictionary: Array[String]): Set[Item]
-  
+
 }
 
 object SearchItem extends SearchItem {
