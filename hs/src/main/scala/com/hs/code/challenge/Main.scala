@@ -1,13 +1,14 @@
 package com.hs.code.challenge
 
 import com.hs.code.challenge.partnerservice.repo.DataFetcherUtils
+
 import zio.Console.printLine
 import zio._
 
 object Main extends ZIOAppDefault {
   override def run: ZIO[Environment with ZIOAppArgs with Scope, Any, Any] = for {
     _ <- ZIO.logInfo("WOOF")
-    pd  <- DataFetcherUtils.fetchPartnersDataScala
+    pd  <- DataFetcherUtils.fetchPartnersData
     _  <- ZIO.logInfo(s"CULON $pd")
   } yield ()
 
