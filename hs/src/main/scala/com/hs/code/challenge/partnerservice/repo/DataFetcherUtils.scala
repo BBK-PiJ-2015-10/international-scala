@@ -2,16 +2,18 @@ package com.hs.code.challenge.partnerservice.repo
 
 import com.hs.code.challenge.partnerservice.entities.ApiEntities.Partners
 import com.hs.code.challenge.partnerservice.entities.ApiEntities._
-import zio.ZIO
+import zio.{Cause, ZIO}
 import zio.json._
 
 import scala.io.Source
 
 object DataFetcherUtils {
-  
+
   def fetchPartnersData(): ZIO[Any, Throwable, Partners] = for {
     jsonPartners <- getJsonString(LOAD_PARTNER_DATA)
-    partners <- ZIO.fromEither(JsonDecoder[Partners].decodeJson(jsonPartners)).mapError(e => new Throwable(e))
+    partners <- ZIO.fromEither(JsonDecoder[Partners].decodeJson(jsonPartners))
+      .tapError(e => ZIO.logError(e))
+      .mapError(e => new Throwable(e))
   } yield partners
 
   private val LOAD_PARTNER_DATA =
