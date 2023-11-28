@@ -2,7 +2,7 @@ package com.hs.code.challenge.partnerservice.repo
 
 import com.hs.code.challenge.partnerservice.entities.ApiEntities.Partners
 import com.hs.code.challenge.partnerservice.entities.ApiEntities._
-import zio.{Cause, ZIO}
+import zio.{ZIO}
 import zio.json._
 
 import scala.io.Source

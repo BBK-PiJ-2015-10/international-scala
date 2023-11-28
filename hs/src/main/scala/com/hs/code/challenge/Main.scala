@@ -1,10 +1,8 @@
 package com.hs.code.challenge
 
 import com.hs.code.challenge.partnerservice.api.PartnerWebService
-import com.hs.code.challenge.partnerservice.repo.{DataFetcherUtils, PartnerServiceRepo}
-import zio.Console.printLine
+import com.hs.code.challenge.partnerservice.repo.{PartnerServiceRepo}
 import zio._
-import zio.http._
 import zio.http.Server
 
 
