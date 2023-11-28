@@ -1,12 +1,12 @@
-package com.hs.code.challenge
+package com.hs.code.challenge.partnerservice
 
 import com.hs.code.challenge.partnerservice.api.PartnerWebService
-import com.hs.code.challenge.partnerservice.repo.{PartnerServiceRepo}
+import com.hs.code.challenge.partnerservice.repo.PartnerServiceRepo
 import zio._
 import zio.http.Server
 
 
-object Main extends ZIOAppDefault {
+object PartnerServiceAppRunner extends ZIOAppDefault {
   override def run =
     Server.serve(PartnerWebService.app)
       .provide(Server.default,
