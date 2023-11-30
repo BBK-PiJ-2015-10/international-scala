@@ -1,9 +1,13 @@
-package com.hs.code.challenge.dataservice.entities
+package com.hs.code.challenge.resultservice.entities
 
 import zio.json._
 
 object ApiEntities {
 
+  case class Country(attendeeCount: Int, attendees: List[String], name: String, startDate: String)
+
+  implicit val encoderCountry: JsonEncoder[Country] = DeriveJsonEncoder.gen
+  implicit val decoderCountry: JsonDecoder[Country] = DeriveJsonDecoder.gen
   case class Recommendation(productId: Int, recommendationId: Int, author: String, rate: Int, content: String, serviceAddress: String)
 
   implicit val encoderRecommendation: JsonEncoder[Recommendation] = DeriveJsonEncoder.gen
