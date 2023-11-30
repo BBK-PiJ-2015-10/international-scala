@@ -13,5 +13,4 @@ object PartnerServiceAppRunner extends ZIOAppDefault {
         PartnerServiceRepo.layer
       )
 
-  //printLine("Welcome to your first ZIO app!")
 }
