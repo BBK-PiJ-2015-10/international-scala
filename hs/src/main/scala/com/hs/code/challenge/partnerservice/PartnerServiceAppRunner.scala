@@ -5,7 +5,6 @@ import com.hs.code.challenge.partnerservice.repo.PartnerServiceRepo
 import zio._
 import zio.http.Server
 
-
 object PartnerServiceAppRunner extends ZIOAppDefault {
   override def run =
     Server.serve(PartnerWebService.app)
