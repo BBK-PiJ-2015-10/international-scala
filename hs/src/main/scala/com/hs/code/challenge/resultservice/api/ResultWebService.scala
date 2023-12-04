@@ -12,10 +12,10 @@ object ResultWebService {
     case req @ Method.POST -> Root / "candidateTest" / "v3" / "problem" / "result" =>
       (for {
         jsonString<- req.body.asString
-        _  <- ZIO.logInfo(s"woof2 $jsonString")
+        _  <- ZIO.logInfo(s"Candidate submitting a result")
         decoded= jsonString.fromJson[List[Country]]
         countries <- ZIO.fromEither(decoded)
-        _  <- ZIO.logInfo(s"woof3 ${countries.size}")
+        _  <- ZIO.logInfo(s"With result size ${countries.size}")
         response <- ZIO.attempt(Response.text(s"Submitted ${countries.size} countries"))
       } yield response).catchAll(e =>
         ZIO.succeed(Response.text(s"UnexpectedError $e").withStatus(Status.InternalServerError)))
