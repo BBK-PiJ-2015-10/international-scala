@@ -1,6 +1,6 @@
 package com.hs.code.challenge.invitationservice
 
-import com.hs.code.challenge.invitationservice.service.client.{PartnerServiceWebClient, ResultServiceWebClient}
+import com.hs.code.challenge.invitationservice.service.external.client.{PartnerServiceWebClient, ResultServiceWebClient}
 import zio._
 import zio.http._
 import zio.{Duration, Scope, ZIO, ZIOAppArgs, ZIOAppDefault}

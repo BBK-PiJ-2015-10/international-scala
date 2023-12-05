@@ -1,9 +1,9 @@
-package com.hs.code.challenge.invitationservice.service.client
+package com.hs.code.challenge.invitationservice.service.external.client
 
-import zio.{ZIO, ZLayer}
+import ApiEntities._
 import zio.http.{Body, Client, Method, URL}
 import zio.json._
-import com.hs.code.challenge.invitationservice.service.client.ApiEntities._
+import zio.{ZIO, ZLayer}
 
 trait PartnerServiceWebClient {
   def fetchPartnersAvailability(): ZIO[Client, Throwable, Partners]

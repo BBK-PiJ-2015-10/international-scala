@@ -1,4 +1,4 @@
-package com.hs.code.challenge.invitationservice.service.client
+package com.hs.code.challenge.invitationservice.service.external.client
 
 import zio.json.{DeriveJsonDecoder, DeriveJsonEncoder, JsonDecoder, JsonEncoder}
 

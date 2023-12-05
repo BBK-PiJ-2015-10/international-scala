@@ -1,9 +1,9 @@
-package com.hs.code.challenge.invitationservice.service.client
+package com.hs.code.challenge.invitationservice.service.external.client
 
 import com.hs.code.challenge.resultservice.entities.ApiEntities.Country
-import zio.{ZIO, ZLayer}
 import zio.http._
 import zio.json._
+import zio.{ZIO, ZLayer}
 
 trait ResultServiceWebClient {
 
