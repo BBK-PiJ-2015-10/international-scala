@@ -44,31 +44,50 @@ case class AvailabilityServiceImpl() extends AvailabilityService {
     }
   }
 
+  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output:Map[LocalDate, List[Email]]): Unit = {
+    for (availableDate <- input.keys.toList.sorted){
+      val nextDay = availableDate.plusDays(1)
+      if (input.contains(nextDay)){
+        // grab participants of next day
+        val nextDayParticipants = input.get(nextDay).get
+        val currentDayParticipants = input.get(availableDate).get
+        val participantsOnBothDates: List[Email] = currentDayParticipants.filter(p => nextDayParticipants.contains(p))
+        output.put(availableDate,participantsOnBothDates)
+      }
+    }
+  }
+
 
   override def processAvailability(partners: List[Partner]): Unit = {
 
     val countryDatesParticipant: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
     partners.map(p => loadCountryDatesParticipants(p, countryDatesParticipant))
 
-    // TODO: calculate , maxAvailableDate
+    val availabilityByCountry: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
+    countryDatesParticipant.keys.toList.foreach(c => availabilityByCountry.put(c, scala.collection.mutable.Map()))
+    // load availability by country
 
+    countryDatesParticipant.keys.foreach(country => {
+      val inputMap = countryDatesParticipant.get(country).get
+      val outputMap = availabilityByCountry.get(country).get
+      loadCommonAvailability(inputMap,outputMap)
+    })
 
+    val submissionByCountry = countryDatesParticipant.groupMap(c => c._1)(c => extractMaxAvailability(c._2))
+      .map(m => (m._1,m._2.head))
 
-
-
-
-
-    //    val countryDates: Map[Country, Set[LocalDate]] = partners.groupMap(p => Country(p.country))(p => p.availableDates.map(d => LocalDate.parse(d)))
-    //      .map(m => (m._1,m._2.flatten.toSet))
-
-
-    val other = partners.map(_.availableDates).flatten.map(d => LocalDate.parse(d)).toSet
-
-
-    //val availableDates = partners.map(_.availableDates).flatMap(d => LocalDate.parse(d)).toSet.flatten.groupBy(d => d).map(d => (d._1,d._2.head))
-
-    //val loco = LocalDate.parse("dada")
-
+    ///submissionByCountry
 
   }
+
+  def extractMaxAvailability(datesMap: Map[LocalDate, List[Email]]) = {
+    val list: List[(LocalDate, List[Email])] = datesMap.keys.map(d => (d,datesMap.get(d).get)).toList
+    implicit val orderingByListSizeAndDate: Ordering[(LocalDate,List[Email])] = Ordering.by {
+      tuple:(LocalDate,List[Email]) => (tuple._2.size,tuple._1)
+    }
+    list.sorted.headOption
+  }
+
+
+
 }
