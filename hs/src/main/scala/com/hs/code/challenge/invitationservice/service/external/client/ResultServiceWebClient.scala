@@ -1,6 +1,6 @@
 package com.hs.code.challenge.invitationservice.service.external.client
 
-import com.hs.code.challenge.resultservice.entities.ApiEntities.Country
+import com.hs.code.challenge.invitationservice.service.external.client.ApiEntities.Country
 import zio.http._
 import zio.json._
 import zio.{ZIO, ZLayer}

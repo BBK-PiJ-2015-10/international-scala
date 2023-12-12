@@ -4,7 +4,7 @@ import zio.json._
 
 object ApiEntities {
 
-  case class Country(attendeeCount: Int, attendees: List[String], name: String, startDate: String)
+  case class Country(attendeeCount: Int, attendees: List[String], name: String, startDate: Option[String])
 
   implicit val encoderCountry: JsonEncoder[Country] = DeriveJsonEncoder.gen
   implicit val decoderCountry: JsonDecoder[Country] = DeriveJsonDecoder.gen

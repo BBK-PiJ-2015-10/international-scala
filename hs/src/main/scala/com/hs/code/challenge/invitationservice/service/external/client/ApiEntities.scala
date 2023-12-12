@@ -14,7 +14,7 @@ object ApiEntities {
   implicit val encoderPartners: JsonEncoder[Partners] = DeriveJsonEncoder.gen
   implicit val decoderPartners: JsonDecoder[Partners] = DeriveJsonDecoder.gen
 
-  case class Country(attendeeCount: Int, attendees: List[String], name: String, startDate: String)
+  case class Country(attendeeCount: Int, attendees: List[String], name: String, startDate: Option[String])
 
   implicit val encoderCountry: JsonEncoder[Country] = DeriveJsonEncoder.gen
   implicit val decoderCountry: JsonDecoder[Country] = DeriveJsonDecoder.gen
