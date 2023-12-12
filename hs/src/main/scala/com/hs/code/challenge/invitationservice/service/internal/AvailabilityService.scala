@@ -1,35 +1,32 @@
 package com.hs.code.challenge.invitationservice.service.internal
 
-import com.hs.code.challenge.invitationservice.dto.Dto
 import com.hs.code.challenge.invitationservice.dto.Dto._
 import com.hs.code.challenge.invitationservice.mapper.Mappers
 import com.hs.code.challenge.invitationservice.service.external.client.{ApiEntities, PartnerServiceWebClient, ResultServiceWebClient}
-import com.hs.code.challenge.invitationservice.service.external.client.ApiEntities.{Partner, Partners}
-import zio.ZIO
+import com.hs.code.challenge.invitationservice.service.external.client.ApiEntities.Partner
+import zio.{ZIO, ZLayer}
 import zio.http.Client
 
 import java.time.LocalDate
-import scala.collection.mutable
 import scala.collection.mutable.Map
-//import scala.collection.mutable.List
 
 trait AvailabilityService {
 
-  //def processAvailability(partners: List[Partner]): Unit
+  def processAvailability(): ZIO[Client with ResultServiceWebClient with PartnerServiceWebClient, Throwable, String]
 
 }
 
-case class AvailabilityServiceImpl() {
+case class AvailabilityServiceImpl() extends AvailabilityService {
 
   def processAvailability(): ZIO[Client with ResultServiceWebClient with PartnerServiceWebClient, Throwable, String] = {
     for {
-      _  <- ZIO.logInfo("Start fetching partner data")
+      _ <- ZIO.logInfo("Start fetching partner data")
       partnerServiceWebClient <- ZIO.service[PartnerServiceWebClient]
-      partners   <- partnerServiceWebClient.fetchPartnersAvailability()
+      partners <- partnerServiceWebClient.fetchPartnersAvailability()
       countriesAvailability = processPartners(partners.partners)
       resultServiceWebClient <- ZIO.service[ResultServiceWebClient]
       resultResponse <- resultServiceWebClient.submitResults(countriesAvailability)
-      _    <- ZIO.logInfo("Received response")
+      _ <- ZIO.logInfo("Received response")
     } yield resultResponse
   }
 
@@ -80,27 +77,33 @@ case class AvailabilityServiceImpl() {
     }
   }
 
-  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output:Map[LocalDate, List[Email]]): Unit = {
-    for (availableDate <- input.keys.toList.sorted){
+  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output: Map[LocalDate, List[Email]]): Unit = {
+    for (availableDate <- input.keys.toList.sorted) {
       val nextDay = availableDate.plusDays(1)
-      if (input.contains(nextDay)){
+      if (input.contains(nextDay)) {
         // grab participants of next day
         val nextDayParticipants = input.get(nextDay).get
         val currentDayParticipants = input.get(availableDate).get
         val participantsOnBothDates: List[Email] = currentDayParticipants.filter(p => nextDayParticipants.contains(p))
-        output.put(availableDate,participantsOnBothDates)
+        output.put(availableDate, participantsOnBothDates)
       }
     }
   }
 
   private def extractMaxAvailability(datesMap: Map[LocalDate, List[Email]]): Option[(LocalDate, List[Email])] = {
-    val list: List[(LocalDate, List[Email])] = datesMap.keys.map(d => (d,datesMap.get(d).get)).toList
-    implicit val orderingByListSizeAndDate: Ordering[(LocalDate,List[Email])] = Ordering.by {
-      tuple:(LocalDate,List[Email]) => (tuple._2.size,tuple._1)
+    val list: List[(LocalDate, List[Email])] = datesMap.keys.map(d => (d, datesMap.get(d).get)).toList
+    implicit val orderingByListSizeAndDate: Ordering[(LocalDate, List[Email])] = Ordering.by {
+      tuple: (LocalDate, List[Email]) => (tuple._2.size, tuple._1)
     }
     list.sorted.headOption
   }
 
 }
 
+
+object AvailabilityService {
+
+  def live(): ZLayer[Any, Throwable, AvailabilityService] =
+    ZLayer.fromZIO(ZIO.from(AvailabilityServiceImpl()))
+}
 
