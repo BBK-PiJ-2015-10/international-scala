@@ -1,37 +1,16 @@
-package com.hs.code.challenge.invitationservice.service.internal
+package com.hs.code.challenge.invitationservice.domain
 
-import com.hs.code.challenge.invitationservice.domain.InvitationCalculator
+
 import com.hs.code.challenge.invitationservice.dto.Dto._
 import com.hs.code.challenge.invitationservice.mapper.Mappers
 import com.hs.code.challenge.invitationservice.service.external.client.{ApiEntities, PartnerServiceWebClient, ResultServiceWebClient}
 import com.hs.code.challenge.invitationservice.service.external.client.ApiEntities.Partner
-import zio.{ZIO, ZLayer}
-import zio.http.Client
 
 import java.time.LocalDate
 import scala.collection.mutable.Map
+object InvitationCalculator {
 
-trait AvailabilityService {
-
-  def processAvailability(): ZIO[Client with ResultServiceWebClient with PartnerServiceWebClient, Throwable, String]
-
-}
-
-case class AvailabilityServiceImpl() extends AvailabilityService {
-
-  def processAvailability(): ZIO[Client with ResultServiceWebClient with PartnerServiceWebClient, Throwable, String] = {
-    for {
-      _ <- ZIO.logInfo("Start fetching partner data")
-      partnerServiceWebClient <- ZIO.service[PartnerServiceWebClient]
-      partners <- partnerServiceWebClient.fetchPartnersAvailability()
-      countriesAvailability = InvitationCalculator.processPartners(partners.partners)
-      resultServiceWebClient <- ZIO.service[ResultServiceWebClient]
-      resultResponse <- resultServiceWebClient.submitResults(countriesAvailability)
-      _ <- ZIO.logInfo("Received response")
-    } yield resultResponse
-  }
-
-/*  private def processPartners(partners: List[Partner]): List[ApiEntities.Country] = {
+  def processPartners(partners: List[Partner]): List[ApiEntities.Country] = {
 
     val countryDatesParticipant: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
     partners.map(p => loadCountryDatesParticipants(p, countryDatesParticipant))
@@ -97,14 +76,6 @@ case class AvailabilityServiceImpl() extends AvailabilityService {
       tuple: (LocalDate, List[Email]) => (tuple._2.size, tuple._1)
     }
     list.sorted.headOption
-  }*/
+  }
 
 }
-
-
-object AvailabilityService {
-
-  def live(): ZLayer[Any, Throwable, AvailabilityService] =
-    ZLayer.fromZIO(ZIO.from(AvailabilityServiceImpl()))
-}
-
