@@ -18,13 +18,17 @@ object InvitationCalculator {
     val availabilityByCountry: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
     countryDatesParticipant.keys.toList.foreach(c => availabilityByCountry.put(c, scala.collection.mutable.Map()))
 
+    println(s"FUCKER1 $availabilityByCountry")
+
     countryDatesParticipant.keys.foreach(country => {
       val inputMap = countryDatesParticipant.get(country).get
       val outputMap = availabilityByCountry.get(country).get
       loadCommonAvailability(inputMap, outputMap)
     })
 
-    val countriesAvailability = countryDatesParticipant.groupMap(c => c._1)(c => extractMaxAvailability(c._2))
+    println(s"FUCKER2 $availabilityByCountry")
+
+    val countriesAvailability =  countryDatesParticipant.groupMap(c => c._1)(c => extractMaxAvailability(availabilityByCountry.get(c._1)))
       .map(m => (m._1, m._2.head))
 
     Mappers.toApiCountry(countriesAvailability)
@@ -57,7 +61,8 @@ object InvitationCalculator {
     }
   }
 
-  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output: Map[LocalDate, List[Email]]): Unit = {
+  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output: Map[LocalDate, List[Email]]): Map[LocalDate, List[Email]]  = {
+
     for (availableDate <- input.keys.toList.sorted) {
       val nextDay = availableDate.plusDays(1)
       if (input.contains(nextDay)) {
@@ -65,17 +70,27 @@ object InvitationCalculator {
         val nextDayParticipants = input.get(nextDay).get
         val currentDayParticipants = input.get(availableDate).get
         val participantsOnBothDates: List[Email] = currentDayParticipants.filter(p => nextDayParticipants.contains(p))
-        output.put(availableDate, participantsOnBothDates)
+        if (participantsOnBothDates.nonEmpty){
+          println(s"Adding $availableDate with parts $participantsOnBothDates")
+          output.put(availableDate, participantsOnBothDates)
+        }
       }
     }
+    output
   }
 
-  private def extractMaxAvailability(datesMap: Map[LocalDate, List[Email]]): Option[(LocalDate, List[Email])] = {
-    val list: List[(LocalDate, List[Email])] = datesMap.keys.map(d => (d, datesMap.get(d).get)).toList
-    implicit val orderingByListSizeAndDate: Ordering[(LocalDate, List[Email])] = Ordering.by {
-      tuple: (LocalDate, List[Email]) => (tuple._2.size, tuple._1)
+  private def extractMaxAvailability(datesMapOpt: Option[Map[LocalDate, List[Email]]]): Option[(LocalDate, List[Email])] = {
+    if (datesMapOpt.isEmpty){
+      None
     }
-    list.sorted.headOption
+    else {
+      val datesMap = datesMapOpt.get
+      val list: List[(LocalDate, List[Email])] = datesMap.keys.map(d => (d, datesMap.get(d).get)).toList
+      implicit val orderingByListSizeAndDate: Ordering[(LocalDate, List[Email])] = Ordering.by {
+        tuple: (LocalDate, List[Email]) => (tuple._2.size, tuple._1)
+      }
+      list.sorted.headOption
+    }
   }
 
 }
