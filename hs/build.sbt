@@ -12,6 +12,7 @@ lazy val root = (project in file("."))
       zio,
       zioTest,
       zioHttp,
+      scalaTest
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )

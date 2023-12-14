@@ -14,6 +14,8 @@ object Dependencies {
 
   lazy val zioHttp = "dev.zio" %% "zio-http" % "3.0.0-RC2"
 
+  lazy val scalaTest = "org.scalatest" %% "scalatest-funsuite" % "3.2.17" % Test
+
 
 
 }
