@@ -16,8 +16,6 @@ object InvitationCalculator {
     val countryDatesParticipant: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
     partners.map(p => loadCountryDatesParticipants(p, countryDatesParticipant))
 
-    println(s"FUCKER1 $countryDatesParticipant")
-
     val availabilityByCountry: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
     countryDatesParticipant.keys.toList.foreach(c => availabilityByCountry.put(c, scala.collection.mutable.Map()))
 
@@ -26,8 +24,6 @@ object InvitationCalculator {
       val outputMap = availabilityByCountry.get(country).get
       loadCommonAvailability(inputMap, outputMap)
     })
-
-    println(s"FUCKER2 $availabilityByCountry")
 
     val countriesAvailability = countryDatesParticipant.groupMap(c => c._1)(c => extractMaxAvailability(availabilityByCountry.get(c._1)))
       .map(m => (m._1, m._2.head))
@@ -62,7 +58,7 @@ object InvitationCalculator {
     }
   }
 
-  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output: Map[LocalDate, List[Email]]): Map[LocalDate, List[Email]] = {
+  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output: Map[LocalDate, List[Email]])= {
 
     for (availableDate <- input.keys.toList.sorted) {
       val nextDay = availableDate.plusDays(1)
@@ -72,12 +68,10 @@ object InvitationCalculator {
         val currentDayParticipants = input.get(availableDate).get
         val participantsOnBothDates: List[Email] = currentDayParticipants.filter(p => nextDayParticipants.contains(p))
         if (participantsOnBothDates.nonEmpty) {
-          println(s"Adding $availableDate with parts $participantsOnBothDates")
           output.put(availableDate, participantsOnBothDates)
         }
       }
     }
-    output
   }
 
   private def extractMaxAvailability(datesMapOpt: Option[Map[LocalDate, List[Email]]]): Option[(LocalDate, List[Email])] = {
