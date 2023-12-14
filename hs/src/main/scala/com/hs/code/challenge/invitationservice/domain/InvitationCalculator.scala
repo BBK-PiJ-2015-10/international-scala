@@ -8,6 +8,7 @@ import com.hs.code.challenge.invitationservice.service.external.client.ApiEntiti
 
 import java.time.LocalDate
 import scala.collection.mutable.Map
+
 object InvitationCalculator {
 
   def processPartners(partners: List[Partner]): List[ApiEntities.Country] = {
@@ -15,10 +16,10 @@ object InvitationCalculator {
     val countryDatesParticipant: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
     partners.map(p => loadCountryDatesParticipants(p, countryDatesParticipant))
 
+    println(s"FUCKER1 $countryDatesParticipant")
+
     val availabilityByCountry: Map[Country, Map[LocalDate, List[Email]]] = scala.collection.mutable.Map()
     countryDatesParticipant.keys.toList.foreach(c => availabilityByCountry.put(c, scala.collection.mutable.Map()))
-
-    println(s"FUCKER1 $availabilityByCountry")
 
     countryDatesParticipant.keys.foreach(country => {
       val inputMap = countryDatesParticipant.get(country).get
@@ -28,7 +29,7 @@ object InvitationCalculator {
 
     println(s"FUCKER2 $availabilityByCountry")
 
-    val countriesAvailability =  countryDatesParticipant.groupMap(c => c._1)(c => extractMaxAvailability(availabilityByCountry.get(c._1)))
+    val countriesAvailability = countryDatesParticipant.groupMap(c => c._1)(c => extractMaxAvailability(availabilityByCountry.get(c._1)))
       .map(m => (m._1, m._2.head))
 
     Mappers.toApiCountry(countriesAvailability)
@@ -61,7 +62,7 @@ object InvitationCalculator {
     }
   }
 
-  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output: Map[LocalDate, List[Email]]): Map[LocalDate, List[Email]]  = {
+  private def loadCommonAvailability(input: Map[LocalDate, List[Email]], output: Map[LocalDate, List[Email]]): Map[LocalDate, List[Email]] = {
 
     for (availableDate <- input.keys.toList.sorted) {
       val nextDay = availableDate.plusDays(1)
@@ -70,7 +71,7 @@ object InvitationCalculator {
         val nextDayParticipants = input.get(nextDay).get
         val currentDayParticipants = input.get(availableDate).get
         val participantsOnBothDates: List[Email] = currentDayParticipants.filter(p => nextDayParticipants.contains(p))
-        if (participantsOnBothDates.nonEmpty){
+        if (participantsOnBothDates.nonEmpty) {
           println(s"Adding $availableDate with parts $participantsOnBothDates")
           output.put(availableDate, participantsOnBothDates)
         }
@@ -80,14 +81,16 @@ object InvitationCalculator {
   }
 
   private def extractMaxAvailability(datesMapOpt: Option[Map[LocalDate, List[Email]]]): Option[(LocalDate, List[Email])] = {
-    if (datesMapOpt.isEmpty){
+    if (datesMapOpt.isEmpty) {
       None
     }
     else {
+      val maxSize = datesMapOpt.get.values.map(_.size).max
       val datesMap = datesMapOpt.get
-      val list: List[(LocalDate, List[Email])] = datesMap.keys.map(d => (d, datesMap.get(d).get)).toList
+      val maxParticipantDates = datesMap.keys.filter(k => datesMap.get(k).get.size >= maxSize).toList
+      val list: List[(LocalDate, List[Email])] = maxParticipantDates.map(d => (d, datesMap.get(d).get))
       implicit val orderingByListSizeAndDate: Ordering[(LocalDate, List[Email])] = Ordering.by {
-        tuple: (LocalDate, List[Email]) => (tuple._2.size, tuple._1)
+        tuple: (LocalDate, List[Email]) => tuple._1
       }
       list.sorted.headOption
     }
