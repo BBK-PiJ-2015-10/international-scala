@@ -81,7 +81,7 @@ object InvitationCalculator {
   }
 
   private def extractMaxAvailability(datesMapOpt: Option[Map[LocalDate, List[Email]]]): Option[(LocalDate, List[Email])] = {
-    if (datesMapOpt.isEmpty) {
+    if (datesMapOpt.isEmpty | datesMapOpt.get.isEmpty) {
       None
     }
     else {
