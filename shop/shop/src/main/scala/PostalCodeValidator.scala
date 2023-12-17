@@ -24,33 +24,23 @@ object PostalCodeValidator {
     "X0E" -> "NT",
     "X0G" -> "NT",
     "X1A" -> "NT",
-     "Y"  -> "YT"
+    "Y" -> "YT"
   )
 
   val pattern = "([A-Z][0-9][A-Z0-9]) ([0-9][A-Z][0-9])".r
 
   val specialCases = "X[0-9][A-Z0-9]".r
 
-  def isValidPostalCode(postalCode: String, providenceCode: String) : Boolean = {
-    // validate postalCode is properly formed
-    if (isPostalCodePatternValid(postalCode)){
-      val firstAlphas = postalCode.substring(0,3)
-      var lookUpKey = postalCode.substring(0,1)
-      if (isSpecialCase(firstAlphas)){
-        lookUpKey = firstAlphas
-      }
-      val optProvidenceCode = dictionary.get(lookUpKey)
-        if (optProvidenceCode.isEmpty) {
-          false
-        } else {
-          optProvidenceCode.get == providenceCode
-        }
+  def isValidPostalCode(postalCode: String, providenceCode: String): Boolean = {
+    val maybeProvidence = resolveProvidence(postalCode)
+    if (maybeProvidence.isDefined) {
+      maybeProvidence.get == providenceCode
     } else {
       false
     }
   }
 
-  def resolveProvidence(postalCode: String)= {
+  def resolveProvidence(postalCode: String) = {
     if (isPostalCodePatternValid(postalCode)) {
       val firstAlphas = postalCode.substring(0, 3)
       var lookUpKey = postalCode.substring(0, 1)
