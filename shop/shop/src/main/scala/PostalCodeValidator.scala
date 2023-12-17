@@ -32,12 +32,7 @@ object PostalCodeValidator {
   val specialCases = "X[0-9][A-Z0-9]".r
 
   def isValidPostalCode(postalCode: String, providenceCode: String): Boolean = {
-    val maybeProvidence = resolveProvidence(postalCode)
-    if (maybeProvidence.isDefined) {
-      maybeProvidence.get == providenceCode
-    } else {
-      false
-    }
+    resolveProvidence(postalCode).map(mp => mp == providenceCode).getOrElse(false)
   }
 
   def resolveProvidence(postalCode: String) = {
