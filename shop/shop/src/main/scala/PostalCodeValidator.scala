@@ -27,11 +27,9 @@ object PostalCodeValidator {
      "Y"  -> "YT"
   )
 
-  //val pattern = "([A-Z])([0-9]([A-Z0-9])) ([A-Z0-9])([A-Z0-9]([A-Z0-9]))".r
+  val pattern = "([A-Z][0-9][A-Z0-9]) ([0-9][A-Z][0-9])".r
 
-  val pattern = "([A-Z])([0-9]([A-Z0-9])) ([0-9])([A-Z]([0-9]))".r
-
-  val specialCases = "X([0-9]([A-Z0-9]))".r
+  val specialCases = "X[0-9][A-Z0-9]".r
 
   def isValidPostalCode(postalCode: String, providenceCode: String) : Boolean = {
     // validate postalCode is properly formed
