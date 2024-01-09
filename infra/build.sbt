@@ -21,4 +21,9 @@ lazy val root = (project in file("."))
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
+dockerExposedPorts := Seq(9090)
+
 dockerBaseImage       := "openjdk:11"
+
+dockerUsername := sys.props.get("docker.username")
+dockerRepository := sys.props.get("docker.registry")

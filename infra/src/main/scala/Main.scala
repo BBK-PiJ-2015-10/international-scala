@@ -14,3 +14,7 @@ object Main extends ZIOAppDefault {
       )
 
 }
+
+//$ export DOCKER_USERNAME=<username>  // e.g: johndoe
+//$ export DOCKER_REGISTRY=<registry>  // e.g: docker.io
+//$ sbt -Ddocker.username=$NAMESPACE -Ddocker.registry=$DOCKER_REGISTRY docker:publish
