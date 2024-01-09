@@ -9,9 +9,17 @@ object SemaphoreExample {
 
   def queryDatabase(connections: Ref[Int]): ZIO[Any, IOException, Unit] = {
     connections.updateAndGet(_ + 1).flatMap { n =>
-      printLine(s"Acquiring now $n connections") *>
-        ZIO.sleep(Duration.fromMillis(1000)) *>
-        printLine(s"Closing now ${n-1} connections")
+      printLine(s"Acquiring database now $n connections") *>
+        ZIO.sleep(Duration.fromMillis(2000)) *>
+        printLine(s"Closing database now ${n-1} connections")
+    }
+  }
+
+  def queryKafka(connections: Ref[Int]): ZIO[Any, IOException, Unit] = {
+    connections.updateAndGet(_ + 1).flatMap { n =>
+      printLine(s"Acquiring kafka now $n connections") *>
+        ZIO.sleep(Duration.fromMillis(2000)) *>
+        printLine(s"Closing kafka now ${n-1} connections")
     }
   }
 
