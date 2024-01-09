@@ -4,6 +4,9 @@ package concurrency.semaphore
 import zio.Console.printLine
 import zio.{Duration, Ref, Scope, Semaphore, ZIO, ZIOAppArgs, ZIOAppDefault}
 
+
+//AP: TODO
+// Implement consumer. Make the ZIO run for ever
 object ScalaSemaphoreRunner extends ZIOAppDefault {
   override def run: ZIO[Environment with ZIOAppArgs with Scope, Any, Any] = {
     for {
