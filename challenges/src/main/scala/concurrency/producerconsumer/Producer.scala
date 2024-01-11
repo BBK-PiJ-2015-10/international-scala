@@ -9,8 +9,10 @@ object Producer {
     for {
       _ <- ZIO.logInfo(s"Producer offering item $offerItem")
       result <- buffer.offer(offerItem)
+      _  <- ZIO.logInfo(s"Producer will take a nap for 1000 millis")
+      _  <- ZIO.sleep(Duration.fromMillis(1000))
     } yield result
   }
-  
+
 }
 
