@@ -1,7 +1,10 @@
 package com.rs.parser
 
-import com.rs.service.external.source.client.ApiEntities.SourceARecord
+import com.rs.service.external.source.client.ApiEntities.{SourceARecord, SourceBRecord}
 import zio.json.DecoderOps
+
+import scala.xml.XML
+
 
 object Parser {
 
@@ -12,6 +15,28 @@ object Parser {
       case Right(r) => Some(r)
     }
     maybeRecord
+  }
+
+
+  def xmlStringToSourceBRecord(xmlString: String): Option[SourceBRecord] = {
+    val xmlResponse = XML.loadString(xmlString)
+    val msgLabel = xmlResponse.label
+    if (msgLabel == "msg"){
+      val maybeContent = xmlResponse.child
+      if (maybeContent.isEmpty) {
+        None
+      } else {
+        val content = maybeContent.head
+        val contentLabel = content.label
+        if (contentLabel == "done") {
+          Some(SourceBRecord(contentLabel,None))
+        } else {
+          None
+        }
+      }
+    } else {
+      None
+    }
   }
 
 

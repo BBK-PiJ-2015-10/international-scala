@@ -9,5 +9,7 @@ object ApiEntities {
   implicit val encoderSourceARecord: JsonEncoder[SourceARecord] = DeriveJsonEncoder.gen
   implicit val decoderSourceARecord: JsonDecoder[SourceARecord] = DeriveJsonDecoder.gen
 
+  case class SourceBRecord(status: String,id:Option[String])
+
 
 }
