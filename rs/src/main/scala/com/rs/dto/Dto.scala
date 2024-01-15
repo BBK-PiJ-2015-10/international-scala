@@ -1,4 +1,4 @@
-package com.rs.service.external.dto
+package com.rs.dto
 
 object Dto {
 
