@@ -48,16 +48,25 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     assert(maybeSourceARecord.get == expectedRecord)
 
-    //val xmlResponse = XML.loadString(doneRecordSourceB)
+  }
 
-    //val msgLabel = xmlResponse.label
-    //val child = xmlResponse.child.head
+  test("continue record source B returns") {
+
+    val continueRecordSourceB = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><id value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
+
+    val xmlResponse = XML.loadString(continueRecordSourceB)
+
+    val msgLabel = xmlResponse.label
+    val child = xmlResponse.child.head
+    val childLabel = child.label
+    val culon = child.attribute("value")
     //val childLabel = child.label
 
     // this return msg
-    //println(s"FUCKER1 $msgLabel")
-    //println(s"FUCKER2 $child")
-    //println(s"FUCKER2 $childLabel")
+    println(s"FUCKER1 $msgLabel")
+    println(s"FUCKER2 $child")
+    println(s"FUCKER3 $childLabel")
+    println(s"FUCKER4 $culon")
 
 
     //println(xmlResponse)
@@ -72,35 +81,6 @@ class TestParserHelperSpec extends AnyFunSuite {
 
 
     //assert(true == true)
-  }
-
-  test("continue record source B returns") {
-
-    val doneRecordSourceB = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<msg>\n    <id value=\"5c7dabe02f3b3b2c751afef4873c1813\"/>\n</msg>"
-
-    val xmlResponse = XML.loadString(doneRecordSourceB)
-
-    val item = xmlResponse.label
-
-    // this return msg
-    println(item)
-
-    //rintln(xmlResponse)
-
-    //val other = xmlResponse.child
-
-    //val culon = other.head
-
-    //println(culon)
-
-    //val max = culon.attribute("value")
-
-
-    //val children = xmlResponse \ "msg"
-
-    //println(max)
-
-    //    val children = xml \ "symbol"
 
 
     assert(true == true)

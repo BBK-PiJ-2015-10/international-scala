@@ -28,10 +28,16 @@ object Parser {
       } else {
         val content = maybeContent.head
         val contentLabel = content.label
-        if (contentLabel == "done") {
-          Some(SourceBRecord(contentLabel,None))
-        } else {
-          None
+        contentLabel match {
+          case "done" => Some(SourceBRecord(contentLabel,None))
+          case "id" =>
+            val maybeIdValue  = content.attribute("value")
+            maybeIdValue match {
+              case None => None
+              case Some(ids) =>
+                Some(SourceBRecord(contentLabel,Some(ids.head.text)))
+            }
+          case _ => None
         }
       }
     } else {
