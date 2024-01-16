@@ -3,34 +3,32 @@ package com.rs
 
 import org.scalatest.funsuite.AnyFunSuite
 import com.rs.parser.Parser
-import com.rs.service.external.source.client.ApiEntities.{SourceARecord, SourceBRecord}
-
-import scala.xml.XML
+import com.rs.service.external.source.client.ApiEntities.{SourceRecord}
 
 class TestParserHelperSpec extends AnyFunSuite {
 
-  test("properly formed source A with ok and id record should be parsed") {
+  test("properly formed json source with ok and id record should be parsed") {
 
     val jsonStringResponse = "{\n    \"status\": \"ok\",\n    \"id\": \"5c7dabe02f3b3b2c751afef4873c1813\"\n}"
 
     val maybeSourceARecord = Parser.jsonStringToSourceARecord(jsonStringResponse)
-    val expectedRecord = SourceARecord("ok", Some("5c7dabe02f3b3b2c751afef4873c1813"))
+    val expectedRecord = SourceRecord("ok", Some("5c7dabe02f3b3b2c751afef4873c1813"))
 
     assert(maybeSourceARecord.get == expectedRecord)
 
   }
 
-  test("properly formed source A with ok and no id record should be parsed") {
+  test("properly formed json source with ok and no id record should be parsed") {
 
     val jsonStringResponse = "{\"status\": \"done\"}"
     val maybeSourceARecord = Parser.jsonStringToSourceARecord(jsonStringResponse)
-    val expectedRecord = SourceARecord("done", None)
+    val expectedRecord = SourceRecord("done", None)
 
     assert(maybeSourceARecord.get == expectedRecord)
 
   }
 
-  test("malformed source A response should return none") {
+  test("malformed json source should return none") {
 
     val jsonStringResponse = "woof"
     val maybeSourceARecord = Parser.jsonStringToSourceARecord(jsonStringResponse)
@@ -39,51 +37,75 @@ class TestParserHelperSpec extends AnyFunSuite {
 
   }
 
-  test("done record source B should be parsed") {
+  test("done record xml source should be parsed") {
 
     val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><done/></msg>"
 
-    val maybeSourceARecord = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
-    val expectedRecord = SourceBRecord("done", None)
+    val maybeSourceBRecord = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+    val expectedRecord = SourceRecord("done", None)
 
-    assert(maybeSourceARecord.get == expectedRecord)
+    assert(maybeSourceBRecord.get == expectedRecord)
 
   }
 
-  test("continue record source B returns") {
+  test("continue xml record source should be parsed") {
 
-    val continueRecordSourceB = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><id value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
+    val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><id value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
 
-    val xmlResponse = XML.loadString(continueRecordSourceB)
+    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
 
-    val msgLabel = xmlResponse.label
-    val child = xmlResponse.child.head
-    val childLabel = child.label
-    val culon = child.attribute("value")
-    //val childLabel = child.label
+    val expectedRecord = SourceRecord("ok",Some("5c7dabe02f3b3b2c751afef4873c1813"))
 
-    // this return msg
-    println(s"FUCKER1 $msgLabel")
-    println(s"FUCKER2 $child")
-    println(s"FUCKER3 $childLabel")
-    println(s"FUCKER4 $culon")
+    assert(maybeSourceBRecord.get == expectedRecord)
 
+  }
 
-    //println(xmlResponse)
+  test("malformed no value xml record source should be parsed") {
 
-    //val other = xmlResponse.child
+    val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><id woof=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
 
-    //val children = xmlResponse \ "msg"
+    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
 
-    //println(other)
+    val expectedRecord = None
 
-    //    val children = xml \ "symbol"
+    assert(maybeSourceBRecord == expectedRecord)
 
+  }
 
-    //assert(true == true)
+  test("malformed no id element xml record source should be parsed") {
 
+    val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><cat value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
 
-    assert(true == true)
+    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+
+    val expectedRecord = None
+
+    assert(maybeSourceBRecord == expectedRecord)
+
+  }
+
+  test("malformed no msg element xml record source should be parsed") {
+
+    val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog><id value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></dog>"
+
+    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+
+    val expectedRecord = None
+
+    assert(maybeSourceBRecord == expectedRecord)
+
+  }
+
+  test("malformed no xml record source should be parsed") {
+
+    val xmlRecordResponse = "cat"
+
+    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+
+    val expectedRecord = None
+
+    assert(maybeSourceBRecord == expectedRecord)
+
   }
 
 

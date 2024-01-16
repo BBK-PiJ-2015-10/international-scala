@@ -9,7 +9,7 @@ import zio.{ZIO, ZLayer}
 
 trait SourceAClient {
 
-  def fetchRecords(): ZIO[Client, Throwable, Option[SourceARecord]]
+  def fetchRecords(): ZIO[Client, Throwable, Option[SourceRecord]]
 
 }
 
@@ -22,7 +22,7 @@ case class SourceAClientImpl(urlString: String) extends SourceAClient {
     client <- ZIO.service[Client]
     response <- client.url(url).request(Method.GET, "/source/a", Body.empty)
     jsonResponse <- response.body.asString
-    response = jsonResponse.fromJson[SourceARecord]
+    response = jsonResponse.fromJson[SourceRecord]
     maybeSourceARecord = response match {
       case Left(_) => None
       case Right(r) => Some(r)

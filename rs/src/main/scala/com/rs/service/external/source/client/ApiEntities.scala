@@ -4,12 +4,9 @@ import zio.json.{DeriveJsonDecoder, DeriveJsonEncoder, JsonDecoder, JsonEncoder}
 
 object ApiEntities {
 
-  case class SourceARecord(status: String,id:Option[String])
+  case class SourceRecord(status: String,id:Option[String])
 
-  implicit val encoderSourceARecord: JsonEncoder[SourceARecord] = DeriveJsonEncoder.gen
-  implicit val decoderSourceARecord: JsonDecoder[SourceARecord] = DeriveJsonDecoder.gen
-
-  case class SourceBRecord(status: String,id:Option[String])
-
+  implicit val encoderSourceARecord: JsonEncoder[SourceRecord] = DeriveJsonEncoder.gen
+  implicit val decoderSourceARecord: JsonDecoder[SourceRecord] = DeriveJsonDecoder.gen
 
 }
