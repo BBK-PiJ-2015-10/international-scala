@@ -6,7 +6,7 @@ object ApiEntities {
 
   case class SourceRecord(status: String,id:Option[String])
 
-  implicit val encoderSourceARecord: JsonEncoder[SourceRecord] = DeriveJsonEncoder.gen
-  implicit val decoderSourceARecord: JsonDecoder[SourceRecord] = DeriveJsonDecoder.gen
+  implicit val encoderSourceRecord: JsonEncoder[SourceRecord] = DeriveJsonEncoder.gen
+  implicit val decoderSourceRecord: JsonDecoder[SourceRecord] = DeriveJsonDecoder.gen
 
 }

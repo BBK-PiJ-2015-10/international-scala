@@ -11,7 +11,7 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     val jsonStringResponse = "{\n    \"status\": \"ok\",\n    \"id\": \"5c7dabe02f3b3b2c751afef4873c1813\"\n}"
 
-    val maybeSourceARecord = Parser.jsonStringToSourceARecord(jsonStringResponse)
+    val maybeSourceARecord = Parser.jsonStringToSourceRecord(jsonStringResponse)
     val expectedRecord = SourceRecord("ok", Some("5c7dabe02f3b3b2c751afef4873c1813"))
 
     assert(maybeSourceARecord.get == expectedRecord)
@@ -21,7 +21,7 @@ class TestParserHelperSpec extends AnyFunSuite {
   test("properly formed json source with ok and no id record should be parsed") {
 
     val jsonStringResponse = "{\"status\": \"done\"}"
-    val maybeSourceARecord = Parser.jsonStringToSourceARecord(jsonStringResponse)
+    val maybeSourceARecord = Parser.jsonStringToSourceRecord(jsonStringResponse)
     val expectedRecord = SourceRecord("done", None)
 
     assert(maybeSourceARecord.get == expectedRecord)
@@ -31,7 +31,7 @@ class TestParserHelperSpec extends AnyFunSuite {
   test("malformed json source should return none") {
 
     val jsonStringResponse = "woof"
-    val maybeSourceARecord = Parser.jsonStringToSourceARecord(jsonStringResponse)
+    val maybeSourceARecord = Parser.jsonStringToSourceRecord(jsonStringResponse)
 
     assert(maybeSourceARecord == None)
 
@@ -41,7 +41,7 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><done/></msg>"
 
-    val maybeSourceBRecord = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+    val maybeSourceBRecord = Parser.xmlStringToSourceRecord(xmlRecordResponse)
     val expectedRecord = SourceRecord("done", None)
 
     assert(maybeSourceBRecord.get == expectedRecord)
@@ -52,9 +52,9 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><id value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
 
-    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+    val maybeSourceBRecord = Parser.xmlStringToSourceRecord(xmlRecordResponse)
 
-    val expectedRecord = SourceRecord("ok",Some("5c7dabe02f3b3b2c751afef4873c1813"))
+    val expectedRecord = SourceRecord("ok", Some("5c7dabe02f3b3b2c751afef4873c1813"))
 
     assert(maybeSourceBRecord.get == expectedRecord)
 
@@ -64,7 +64,7 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><id woof=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
 
-    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+    val maybeSourceBRecord = Parser.xmlStringToSourceRecord(xmlRecordResponse)
 
     val expectedRecord = None
 
@@ -76,7 +76,7 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><msg><cat value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></msg>"
 
-    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+    val maybeSourceBRecord = Parser.xmlStringToSourceRecord(xmlRecordResponse)
 
     val expectedRecord = None
 
@@ -88,7 +88,7 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     val xmlRecordResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dog><id value=\"5c7dabe02f3b3b2c751afef4873c1813\"/></dog>"
 
-    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+    val maybeSourceBRecord = Parser.xmlStringToSourceRecord(xmlRecordResponse)
 
     val expectedRecord = None
 
@@ -100,7 +100,7 @@ class TestParserHelperSpec extends AnyFunSuite {
 
     val xmlRecordResponse = "cat"
 
-    val maybeSourceBRecord  = Parser.xmlStringToSourceBRecord(xmlRecordResponse)
+    val maybeSourceBRecord = Parser.xmlStringToSourceRecord(xmlRecordResponse)
 
     val expectedRecord = None
 
