@@ -3,7 +3,7 @@ package com.rs
 
 import org.scalatest.funsuite.AnyFunSuite
 import com.rs.parser.Parser
-import com.rs.service.external.source.client.ApiEntities.{SourceRecord}
+import com.rs.source.client.ApiEntities.SourceRecord
 
 class TestParserHelperSpec extends AnyFunSuite {
 

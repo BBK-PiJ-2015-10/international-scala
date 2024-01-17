@@ -1,6 +1,7 @@
 package com.rs.parser
 
-import com.rs.service.external.source.client.ApiEntities.SourceRecord
+import com.rs.source.client.ApiEntities.SourceRecord
+import com.rs.sink.client.ApiEntities.SinkResponse
 import zio.json.DecoderOps
 
 import scala.util.{Failure, Success, Try}
@@ -9,13 +10,20 @@ import scala.xml.{Elem, XML}
 
 object Parser {
 
+  def jsonStringToSinkResponse(jsonString: String): Option[SinkResponse] = {
+     val sinkResponse = jsonString.fromJson[SinkResponse]
+     sinkResponse match {
+       case Left(_) => None
+       case Right(sr) => Some(sr)
+     }
+  }
+
   def jsonStringToSourceRecord(jsonString: String): Option[SourceRecord] = {
-    val response  = jsonString.fromJson[SourceRecord]
-    val maybeRecord = response match {
+    val sourceRecord  = jsonString.fromJson[SourceRecord]
+    sourceRecord match {
       case Left(_) => None
       case Right(r) => Some(r)
     }
-    maybeRecord
   }
 
   private def xmlElementToSourceRecord(xmlResponse: Elem): Option[SourceRecord] = {
@@ -45,13 +53,13 @@ object Parser {
   }
 
 
-  def xmlStringToSourceRecord(xmlString: String) = {
+  def xmlStringToSourceRecord(xmlString: String): Option[SourceRecord] = {
     val xmlResponse = Try(XML.loadString(xmlString))
-    val other = xmlResponse match {
+    val response = xmlResponse match {
       case Success(elem) => xmlElementToSourceRecord(elem)
       case Failure(_) => None
     }
-    other
+    response
   }
 
 

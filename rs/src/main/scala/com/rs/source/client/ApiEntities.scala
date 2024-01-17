@@ -1,4 +1,4 @@
-package com.rs.service.external.source.client
+package com.rs.source.client
 
 import zio.json.{DeriveJsonDecoder, DeriveJsonEncoder, JsonDecoder, JsonEncoder}
 

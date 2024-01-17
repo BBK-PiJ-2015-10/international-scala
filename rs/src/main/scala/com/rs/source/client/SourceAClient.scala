@@ -1,11 +1,9 @@
-package com.rs.service.external.source.client
+package com.rs.source.client
 
-import zio.ZIO
-
-import ApiEntities._
-import zio.http.{Body, Client, Method, URL}
-import zio.json._
+import com.rs.source.client.ApiEntities._
 import zio.{ZIO, ZLayer}
+import zio.http.{Body, Client, Method, URL}
+import com.rs.parser.Parser
 
 trait SourceAClient {
 
@@ -17,17 +15,19 @@ case class SourceAClientImpl(urlString: String) extends SourceAClient {
 
   val url = URL.decode(urlString).toOption.get
 
-
   override def fetchRecords() = for {
     client <- ZIO.service[Client]
     response <- client.url(url).request(Method.GET, "/source/a", Body.empty)
     jsonResponse <- response.body.asString
-    response = jsonResponse.fromJson[SourceRecord]
-    maybeSourceARecord = response match {
-      case Left(_) => None
-      case Right(r) => Some(r)
-    }
-  } yield maybeSourceARecord
+    record = Parser.jsonStringToSourceRecord(jsonResponse)
+  } yield record
+
+}
+
+object SourceAClient {
+
+  def live(sourceUrl: String): ZLayer[Client,Throwable,SourceAClient] =
+    ZLayer.fromZIO(ZIO.attempt(SourceAClientImpl(sourceUrl)))
 
 }
 

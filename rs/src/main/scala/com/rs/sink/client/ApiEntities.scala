@@ -1,4 +1,4 @@
-package com.rs.service.external.sink.client
+package com.rs.sink.client
 
 import zio.json.{DeriveJsonDecoder, DeriveJsonEncoder, JsonDecoder, JsonEncoder}
 object ApiEntities {
