@@ -7,16 +7,15 @@ import com.rs.parser.Parser
 
 trait SourceAClient {
 
-  def fetchRecords(): ZIO[Client, Throwable, Option[SourceRecord]]
+  def fetchRecord(): ZIO[Any, Throwable, Option[SourceRecord]]
 
 }
 
-case class SourceAClientImpl(urlString: String) extends SourceAClient {
+case class SourceAClientImpl(urlString: String, client: Client) extends SourceAClient {
 
   val url = URL.decode(urlString).toOption.get
 
-  override def fetchRecords() = for {
-    client <- ZIO.service[Client]
+  def fetchRecord(): ZIO[Any, Throwable, Option[SourceRecord]] = for {
     response <- client.url(url).request(Method.GET, "/source/a", Body.empty)
     jsonResponse <- response.body.asString
     record = Parser.jsonStringToSourceRecord(jsonResponse)
@@ -26,8 +25,8 @@ case class SourceAClientImpl(urlString: String) extends SourceAClient {
 
 object SourceAClient {
 
-  def live(sourceUrl: String): ZLayer[Client,Throwable,SourceAClient] =
-    ZLayer.fromZIO(ZIO.attempt(SourceAClientImpl(sourceUrl)))
+  def live(sourceUrl: String): ZLayer[Client, Throwable, SourceAClient] =
+    ZLayer.fromFunction(SourceAClientImpl(sourceUrl,_))
 
 }
 
