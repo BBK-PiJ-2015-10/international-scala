@@ -6,7 +6,7 @@ import zio.http.{Body, Client, Method, URL}
 import com.rs.parser.Parser
 
 trait SourceBClient {
-  def fetchRecord(): ZIO[Client, Throwable, Option[SourceRecord]]
+  def fetchRecord(): ZIO[Any, Throwable, Option[SourceRecord]]
 
 }
 
@@ -14,8 +14,7 @@ case class SourceBClientImpl(urlString: String, client: Client) extends SourceBC
 
   val url = URL.decode(urlString).toOption.get
 
-  override def fetchRecord(): ZIO[Client, Throwable, Option[SourceRecord]] = for {
-    client <- ZIO.service[Client]
+  override def fetchRecord(): ZIO[Any, Throwable, Option[SourceRecord]] = for {
     response <- client.url(url).request(Method.GET, "/source/b", Body.empty)
     xmlResponse <- response.body.asString
     record = Parser.xmlStringToSourceRecord(xmlResponse)

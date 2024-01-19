@@ -1,19 +1,20 @@
 package com.rs.service
 
 import com.rs.source.client.ApiEntities.SourceRecord
-import com.rs.source.client.SourceAClient
-import zio.{Queue,ZIO, ZLayer}
+import com.rs.source.client.SourceBClient
+import zio.{Queue, ZIO, ZLayer}
 
-trait SourceAExecutor {
+trait SourceBExecutor {
+
   def fetchRecords(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean]): ZIO[Any, Throwable, Boolean]
 
 }
 
-case class SourceAExecutorImpl(sourceAClient: SourceAClient) extends SourceAExecutor {
+case class SourceBExecutorImpl(sourceBClient: SourceBClient) extends SourceBExecutor {
 
   override def fetchRecords(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean]): ZIO[Any, Throwable, Boolean] = for {
     - <- ZIO.logInfo(s"Starting consumption of sourceA messages")
-    sourceARecord <- sourceAClient.fetchRecord()
+    sourceARecord <- sourceBClient.fetchRecord()
     result <- processRecord(workBuffer, controlBuffer, sourceARecord)
     _ <- ZIO.logInfo("Finalizing executor")
   } yield result
@@ -32,7 +33,7 @@ case class SourceAExecutorImpl(sourceAClient: SourceAClient) extends SourceAExec
         case SourceRecord(_, Some(_)) =>
           for {
             or <- workBuffer.offer(record.get)
-            _ <- ZIO.logInfo(s"Offering an ongoing record for sourceA")
+            _ <- ZIO.logInfo(s"Offering an ongoing record for sourceB")
           } yield or
       }
       result
@@ -40,12 +41,10 @@ case class SourceAExecutorImpl(sourceAClient: SourceAClient) extends SourceAExec
   }
 }
 
-object SourceAExecutor {
+object SourceBExecutor {
 
-  def layer(): ZLayer[SourceAClient, Nothing, SourceAExecutor] = {
-    ZLayer.fromFunction(SourceAExecutorImpl(_))
+  def layer(): ZLayer[SourceBClient, Nothing, SourceBExecutor] = {
+    ZLayer.fromFunction(SourceBExecutorImpl(_))
   }
 
 }
-
-
