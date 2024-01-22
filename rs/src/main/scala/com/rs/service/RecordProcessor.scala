@@ -44,8 +44,8 @@ case class RecordProcessorImpl() extends RecordProcessor {
             ZIO.attempt(false)
           case Some(r) =>
             for {
-              offered <- outputChannel.offer(SubmissionRecord("joined", r.id.get))
-            } yield !offered
+              _ <- outputChannel.offer(SubmissionRecord("joined", r.id.get))
+            } yield false
         }
     }
   }
