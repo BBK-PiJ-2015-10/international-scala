@@ -50,7 +50,7 @@ case class RecordProcessorImpl() extends RecordProcessor {
     }
   }
 
-  private def evaluateCompletion(outputChannel: Queue[SubmissionRecord]): UIO[Boolean] = {
+  private def evaluateCompletion(outputChannel: Queue[SubmissionRecord]): ZIO[Any, Throwable, Boolean] = {
     if (counter >= 2) {
       records.values.toList.map(r => SubmissionRecord("orphan", r.id.get)).foreach(or => outputChannel.offer(or))
       records.clear()
@@ -65,7 +65,7 @@ case class RecordProcessorImpl() extends RecordProcessor {
 
 object RecordProcessor {
 
-  def layer(): ZLayer[Any, Nothing, RecordProcessor] = {
+  def live(): ZLayer[Any, Nothing, RecordProcessor] = {
     ZLayer.fromZIO(ZIO.succeed(RecordProcessorImpl()))
   }
 }

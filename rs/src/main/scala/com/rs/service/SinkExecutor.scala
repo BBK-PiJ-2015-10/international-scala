@@ -20,7 +20,7 @@ case class SinkExecutorImpl(sinkClient: SinkClient) extends SinkExecutor {
 
 object SinkExecutor {
 
-  def layer(): ZLayer[SinkClient, Throwable, SinkExecutor] =
+  def live(): ZLayer[SinkClient, Throwable, SinkExecutor] =
     ZLayer.fromFunction(SinkExecutorImpl(_))
 
 }

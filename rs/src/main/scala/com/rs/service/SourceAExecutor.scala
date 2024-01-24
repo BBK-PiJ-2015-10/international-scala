@@ -2,7 +2,7 @@ package com.rs.service
 
 import com.rs.source.client.ApiEntities.SourceRecord
 import com.rs.source.client.SourceAClient
-import zio.{Queue,ZIO, ZLayer}
+import zio.{Duration, Queue, ZIO, ZLayer}
 
 trait SourceAExecutor {
   def fetchRecords(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean]): ZIO[Any, Throwable, Boolean]
@@ -11,18 +11,19 @@ trait SourceAExecutor {
 
 case class SourceAExecutorImpl(sourceAClient: SourceAClient) extends SourceAExecutor {
 
-  override def fetchRecords(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean]): ZIO[Any, Throwable, Boolean] = for {
+  override def fetchRecords(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean]): ZIO[Any, Throwable, Boolean] = (for {
     - <- ZIO.logInfo(s"Starting consumption of sourceA messages")
     sourceARecord <- sourceAClient.fetchRecord()
     result <- processRecord(workBuffer, controlBuffer, sourceARecord)
+    _ <- ZIO.sleep(Duration.fromMillis(2000))
     _ <- ZIO.logInfo("Finalizing executor")
-  } yield result
+  } yield result).retryN(3)
 
   def processRecord(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean], record: Option[SourceRecord]): ZIO[Any, Nothing, Boolean] = {
     if (record.isEmpty) {
       ZIO.logInfo(s"Ignoring an empty record for sourceA") zipRight ZIO.succeed(true)
     } else {
-      val result = record match {
+      val result = record.get match {
         case SourceRecord(_, None) =>
           for {
             _ <- workBuffer.offer(record.get)
@@ -42,7 +43,7 @@ case class SourceAExecutorImpl(sourceAClient: SourceAClient) extends SourceAExec
 
 object SourceAExecutor {
 
-  def layer(): ZLayer[SourceAClient, Nothing, SourceAExecutor] = {
+  def live(): ZLayer[SourceAClient, Nothing, SourceAExecutor] = {
     ZLayer.fromFunction(SourceAExecutorImpl(_))
   }
 

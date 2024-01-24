@@ -18,6 +18,7 @@ case class SourceAClientImpl(urlString: String, client: Client) extends SourceAC
   def fetchRecord(): ZIO[Any, Throwable, Option[SourceRecord]] = for {
     response <- client.url(url).request(Method.GET, "/source/a", Body.empty)
     jsonResponse <- response.body.asString
+    _ <- ZIO.logInfo(s"Source A fetched $jsonResponse")
     record = Parser.jsonStringToSourceRecord(jsonResponse)
   } yield record
 

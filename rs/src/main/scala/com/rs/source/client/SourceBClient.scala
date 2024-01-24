@@ -17,6 +17,7 @@ case class SourceBClientImpl(urlString: String, client: Client) extends SourceBC
   override def fetchRecord(): ZIO[Any, Throwable, Option[SourceRecord]] = for {
     response <- client.url(url).request(Method.GET, "/source/b", Body.empty)
     xmlResponse <- response.body.asString
+    _ <- ZIO.logInfo(s"Source B fetched $xmlResponse")
     record = Parser.xmlStringToSourceRecord(xmlResponse)
   } yield record
 
