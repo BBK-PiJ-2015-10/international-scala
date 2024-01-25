@@ -2,7 +2,7 @@ package com.rs.service
 
 import com.rs.sink.client.ApiEntities.SubmissionRecord
 import com.rs.source.client.ApiEntities.SourceRecord
-import zio.{Queue, UIO, ZIO, ZLayer}
+import zio.{Queue, Task, UIO, ZIO, ZLayer}
 
 import scala.collection.mutable.{HashMap, Map}
 
@@ -32,19 +32,22 @@ case class RecordProcessorImpl() extends RecordProcessor {
   }
 
 
-  private def processSourceRecord(sourceRecord: SourceRecord, outputChannel: Queue[SubmissionRecord]) = {
+  private def processSourceRecord(sourceRecord: SourceRecord, outputChannel: Queue[SubmissionRecord]): Task[Boolean] = {
     sourceRecord match {
       case SourceRecord(_, None) =>
         counter += 1
-        ZIO.attempt(true)
+        ZIO.logInfo(s"Processor received a done records, updated counter to $counter") zipRight  ZIO.attempt(true)
       case SourceRecord(_, Some(id)) =>
         records.remove(id) match {
           case None =>
             records.put(id, sourceRecord)
-            ZIO.attempt(false)
+            ZIO.logInfo(s"Processor received a new record : $sourceRecord") zipRight ZIO.attempt(false)
           case Some(r) =>
             for {
-              _ <- outputChannel.offer(SubmissionRecord("joined", r.id.get))
+              _ <- ZIO.logInfo(s"Processor received a matched record : $sourceRecord")
+              matcheRecord = SubmissionRecord("joined", r.id.get)
+              _ <- outputChannel.offer(matcheRecord)
+              _ <- ZIO.logInfo(s"Processor submitted a joined record : $matcheRecord")
             } yield false
         }
     }

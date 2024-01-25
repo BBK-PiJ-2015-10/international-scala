@@ -22,19 +22,19 @@ case class SourceBExecutorImpl(sourceBClient: SourceBClient) extends SourceBExec
 
   def processRecord(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean], record: Option[SourceRecord]): ZIO[Any, Nothing, Boolean] = {
     if (record.isEmpty) {
-      ZIO.logInfo(s"Ignoring an empty record for sourceA") zipRight ZIO.succeed(true)
+      ZIO.logInfo(s"Executor Ignoring an empty record from sourceB") zipRight ZIO.succeed(true)
     } else {
       val result = record.get match {
         case SourceRecord(_, None) =>
           for {
             _ <- workBuffer.offer(record.get)
-            _ <- ZIO.logInfo(s"Offering a done record for sourceA and pausing consumption")
+            _ <- ZIO.logInfo(s"Executor Offering a done record :${record.get} from sourceB and pausing consumption")
             cr <- controlBuffer.take
           } yield cr
         case SourceRecord(_, Some(_)) =>
           for {
             or <- workBuffer.offer(record.get)
-            _ <- ZIO.logInfo(s"Offering an ongoing record for sourceB")
+            _ <- ZIO.logInfo(s"Executor offering an ongoing record ${record.get} from sourceB")
           } yield or
       }
       result

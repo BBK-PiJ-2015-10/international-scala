@@ -12,6 +12,7 @@ trait Coordinator {
 case class CoordinatorImpl(recordProcessor: RecordProcessor, sourceAExecutor: SourceAExecutor, sourceBExecutor: SourceBExecutor, sinkExecutor: SinkExecutor) extends Coordinator {
 
   override def processRecords(inputChannel: Queue[SourceRecord], outputChannel: Queue[SubmissionRecord], controlBufferA: Queue[Boolean], controlBufferB: Queue[Boolean]) = for {
+    //TODO: forever seems to never go beyond sourceAExecutor, try to fork
     _ <- sourceAExecutor.fetchRecords(inputChannel, controlBufferA).forever
     _ <-  sourceBExecutor.fetchRecords(inputChannel, controlBufferB).forever
     _ <-recordProcessor.processRecords(inputChannel, outputChannel).forever
