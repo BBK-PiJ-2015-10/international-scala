@@ -36,7 +36,7 @@ case class RecordProcessorImpl() extends RecordProcessor {
     sourceRecord match {
       case SourceRecord(_, None) =>
         counter += 1
-        ZIO.logInfo(s"Processor received a done records, updated counter to $counter") zipRight  ZIO.attempt(true)
+        ZIO.logInfo(s"Processor received a done records, updated counter to $counter") zipRight ZIO.attempt(true)
       case SourceRecord(_, Some(id)) =>
         records.remove(id) match {
           case None =>
@@ -45,19 +45,27 @@ case class RecordProcessorImpl() extends RecordProcessor {
           case Some(r) =>
             for {
               _ <- ZIO.logInfo(s"Processor received a matched record : $sourceRecord")
-              matcheRecord = SubmissionRecord("joined", r.id.get)
-              _ <- outputChannel.offer(matcheRecord)
-              _ <- ZIO.logInfo(s"Processor submitted a joined record : $matcheRecord")
+              matchedRecord = SubmissionRecord("joined", r.id.get)
+              _ <- outputChannel.offer(matchedRecord)
+              _ <- ZIO.logInfo(s"Processor submitted a joined record : $matchedRecord")
             } yield false
         }
     }
   }
 
+
+  private def offerOrphans(list: List[SubmissionRecord], outputChannel: Queue[SubmissionRecord]) = {
+    ZIO.foreach(list)(o => offerOrphan(o, outputChannel))
+  }
+
+  private def offerOrphan(record: SubmissionRecord, outputChannel: Queue[SubmissionRecord]) = {
+    outputChannel.offer(record)
+  }
+
   private def evaluateCompletion(outputChannel: Queue[SubmissionRecord]): ZIO[Any, Throwable, Boolean] = {
     if (counter >= 2) {
-      records.values.toList.map(r => SubmissionRecord("orphan", r.id.get)).foreach(or => outputChannel.offer(or))
-      records.clear()
-      ZIO.logInfo(s"Processing completed") zipRight ZIO.attempt(true)
+      val orphans = records.values.toList.map(r => SubmissionRecord("orphaned", r.id.get))
+      ZIO.logInfo(s"Submitted ${orphans.length} orphansProcessing completed") zipRight offerOrphans(orphans, outputChannel) zipRight ZIO.succeed(records.clear()) zipRight ZIO.attempt(true)
     } else {
       ZIO.logInfo(s"Continue processing counter is at $counter") zipRight ZIO.attempt(false)
     }

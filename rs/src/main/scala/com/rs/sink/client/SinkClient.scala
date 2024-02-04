@@ -22,7 +22,7 @@ case class SinkClientImpl(sinkUrl: String, client: Client) extends SinkClient {
       response <- client.url(url).request(Method.POST, "/sink/a", body)
       jsonResponse <- response.body.asString
     } yield Parser.jsonStringToSinkResponse(jsonResponse)
-  }
+  }.retryN(10)
 
 }
 

@@ -1,6 +1,6 @@
 package com.rs.service
 
-import com.rs.sink.client.ApiEntities.{SubmissionRecord, encoderSinkResponse}
+import com.rs.sink.client.ApiEntities.{SubmissionRecord}
 import com.rs.source.client.ApiEntities.SourceRecord
 import zio.{Duration, Queue, ZIO, ZLayer}
 
@@ -12,20 +12,37 @@ trait Coordinator {
 case class CoordinatorImpl(recordProcessor: RecordProcessor, sourceAExecutor: SourceAExecutor, sourceBExecutor: SourceBExecutor, sinkExecutor: SinkExecutor) extends Coordinator {
 
   override def processRecords(inputChannel: Queue[SourceRecord], outputChannel: Queue[SubmissionRecord], controlBufferA: Queue[Boolean], controlBufferB: Queue[Boolean]) = for {
-    //TODO: forever seems to never go beyond sourceAExecutor, try to fork
-    _ <- sourceAExecutor.fetchRecords(inputChannel, controlBufferA).forever
-    _ <-  sourceBExecutor.fetchRecords(inputChannel, controlBufferB).forever
-    _ <-recordProcessor.processRecords(inputChannel, outputChannel).forever
-    _ <- sinkExecutor.submitRecords(outputChannel).forever
-    _ <- ZIO.logInfo("napping for 10 seconds")
-    _ <- ZIO.sleep(Duration.fromMillis(1000))
-    _ <- ZIO.logInfo("done napping for 10 seconds")
-    //sourceA <- sourceAExecutor.fetchRecords(inputChannel, controlBufferA).fork
-    //sourceB <- sourceBExecutor.fetchRecords(inputChannel, controlBufferB).fork
-    //processor <- recordProcessor.processRecords(inputChannel, outputChannel).fork
-    //sink <- sinkExecutor.submitRecords(outputChannel).fork
+    f1 <- launchExecutorA(inputChannel, controlBufferA).fork
+    f2 <- launchExecutorB(inputChannel, controlBufferB).fork
+    f3 <- launchRecordProcessor(inputChannel, outputChannel).fork
+    f4 <- lunchSinkExecutor(outputChannel).fork
+    _ <- ZIO.logInfo("Joining on fibers")
+    j1 <- f1.join
+    j2 <- f2.join
+    j3 <- f3.join
+    j4 <- f4.join
+    _ <- ZIO.logInfo("done joining fibers")
     _ <- ZIO.logInfo("GOOD BYE")
   } yield true
+
+  def launchExecutorA(inputChannel: Queue[SourceRecord], controlBufferA: Queue[Boolean]) = for {
+    _ <- ZIO.sleep(Duration.fromMillis(1000))
+    _ <- sourceAExecutor.fetchRecords(inputChannel, controlBufferA).forever
+  } yield ()
+
+  def launchExecutorB(inputChannel: Queue[SourceRecord], controlBufferB: Queue[Boolean]) = for {
+    _ <- ZIO.sleep(Duration.fromMillis(1000))
+    _ <- sourceBExecutor.fetchRecords(inputChannel, controlBufferB).forever
+  } yield ()
+
+  def launchRecordProcessor(inputChannel: Queue[SourceRecord], outputChannel: Queue[SubmissionRecord]) = for {
+    _ <- recordProcessor.processRecords(inputChannel, outputChannel).forever
+  } yield ()
+
+  def lunchSinkExecutor(outputChannel: Queue[SubmissionRecord]) = for {
+    _ <- sinkExecutor.submitRecords(outputChannel).forever
+  } yield ()
+
 
 }
 

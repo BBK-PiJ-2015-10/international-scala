@@ -15,6 +15,7 @@ case class SourceBClientImpl(urlString: String, client: Client) extends SourceBC
   val url = URL.decode(urlString).toOption.get
 
   override def fetchRecord(): ZIO[Any, Throwable, Option[SourceRecord]] = for {
+    _ <- ZIO.logInfo("Calling /source/b")
     response <- client.url(url).request(Method.GET, "/source/b", Body.empty)
     xmlResponse <- response.body.asString
     _ <- ZIO.logInfo(s"Source B fetched $xmlResponse")

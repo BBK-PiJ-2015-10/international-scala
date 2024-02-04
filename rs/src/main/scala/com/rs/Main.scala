@@ -22,7 +22,7 @@ object Main extends ZIOAppDefault {
     inputChannel <- Queue.unbounded[SourceRecord]
     ouputChannel <- Queue.unbounded[SubmissionRecord]
     _  <- coordinator.processRecords(inputChannel,ouputChannel,controlABuffer,controlBBuffer)
-    _  <- ZIO.sleep(Duration.fromMillis(100))
+    _  <- ZIO.sleep(Duration.fromMillis(10000))
     _ <- ZIO.logInfo("done")
   } yield ()).provide(
      Client.default,

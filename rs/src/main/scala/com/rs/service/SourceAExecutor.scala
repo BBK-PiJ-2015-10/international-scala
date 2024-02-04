@@ -12,12 +12,11 @@ trait SourceAExecutor {
 case class SourceAExecutorImpl(sourceAClient: SourceAClient) extends SourceAExecutor {
 
   override def fetchRecords(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean]): ZIO[Any, Throwable, Boolean] = (for {
-    - <- ZIO.logInfo(s"Starting consumption of sourceA messages")
+    - <- ZIO.logInfo(s"consuming sourceA message")
     sourceARecord <- sourceAClient.fetchRecord()
     result <- processRecord(workBuffer, controlBuffer, sourceARecord)
-    _ <- ZIO.sleep(Duration.fromMillis(2000))
-    _ <- ZIO.logInfo("Finalizing executor")
-  } yield result).retryN(3)
+    _ <- ZIO.logInfo("consumed sourceA message")
+  } yield result).retryN(10)
 
   def processRecord(workBuffer: Queue[SourceRecord], controlBuffer: Queue[Boolean], record: Option[SourceRecord]): ZIO[Any, Nothing, Boolean] = {
     if (record.isEmpty) {
