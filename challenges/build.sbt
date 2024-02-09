@@ -5,12 +5,15 @@ ThisBuild / organizationName := "example"
 
 val zioVersion= "2.0.21"
 
+lazy val scalaTest = "org.scalatest" %% "scalatest-funsuite" % "3.2.17" % Test
+
 lazy val root = (project in file("."))
   .settings(
     name := "challenges",
     libraryDependencies ++= Seq(
       "dev.zio" %% "zio" % zioVersion,
-      "dev.zio" %% "zio-test" % zioVersion % Test
+      "dev.zio" %% "zio-test" % zioVersion % Test,
+      scalaTest,
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
