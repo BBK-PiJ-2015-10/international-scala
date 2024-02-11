@@ -14,6 +14,8 @@ lazy val root = (project in file("."))
       "dev.zio" %% "zio" % zioVersion,
       "dev.zio" %% "zio-test" % zioVersion % Test,
       scalaTest,
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+      "ch.qos.logback" % "logback-classic" % "1.3.5"
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
   )
