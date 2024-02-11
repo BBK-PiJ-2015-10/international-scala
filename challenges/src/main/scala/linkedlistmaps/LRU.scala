@@ -1,0 +1,5 @@
+package linkedlistmaps
+
+trait LRU {
+
+}

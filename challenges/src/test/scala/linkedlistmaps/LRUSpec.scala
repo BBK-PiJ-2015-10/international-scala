@@ -1,0 +1,5 @@
+package linkedlistmaps
+
+class LR {
+
+}
