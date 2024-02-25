@@ -30,6 +30,16 @@ public class SourceAImpl implements SourceA {
         this.sourceRecordURI = URI.create("http://" + sourceRecordUrl + ":" + sourceRecordPort + sourceRecordPath);
         this.mapper = mapper;
     }
+    
+    @Override
+    public Mono<SourceRecord> fetchRecord() {
+        return webClient.get().uri(sourceRecordURI).retrieve()
+                .bodyToMono(String.class)
+                .log()
+                .map(this::mapJsonToRecord).flatMap(
+                        optional -> optional.map(Mono::just).orElseGet(Mono::empty)
+                );
+    }
 
     private Optional<SourceRecord> mapJsonToRecord(String jsonResponse) {
         try {
@@ -40,16 +50,6 @@ public class SourceAImpl implements SourceA {
             logger.warning(String.format("Unable to parse response due to %s", e));
             return Optional.empty();
         }
-    }
-
-    @Override
-    public Mono<SourceRecord> fetchRecord() {
-        return webClient.get().uri(sourceRecordURI).retrieve()
-                .bodyToMono(String.class)
-                .log()
-                .map(this::mapJsonToRecord).flatMap(
-                        optional -> optional.map(Mono::just).orElseGet(Mono::empty)
-                );
     }
 
 }
