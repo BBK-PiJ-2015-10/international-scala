@@ -1,12 +1,10 @@
 package org.tc.rs.source.rest.client;
 
 import org.tc.rs.source.rest.entities.SourceRecord;
+import org.tc.rs.source.rest.mappers.SourceRecordMapper;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
+public interface SourceB {
 
-public interface Source {
-
-    Mono<Optional<SourceRecord>> fetchRecord();
-
+    Mono<SourceRecord> fetchRecord();
 }
